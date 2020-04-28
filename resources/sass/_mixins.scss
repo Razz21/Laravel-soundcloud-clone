@@ -1,0 +1,31 @@
+// spacing
+
+$max: 12;
+$offset: 0.25;
+$unit: "rem";
+
+@mixin loop-spacing($className, $styleName) {
+  $i: 0;
+
+  @while $i <= $max {
+    #{$className + $i} {
+      #{$styleName}: #{$i * $offset} + $unit !important;
+    }
+
+    $i: $i + 1;
+  }
+}
+
+// Margins
+@include loop-spacing(".mt-", "margin-top");
+@include loop-spacing(".mr-", "margin-right");
+@include loop-spacing(".mb-", "margin-bottom");
+@include loop-spacing(".ml-", "margin-left");
+@include loop-spacing(".m-", "margin");
+
+// Paddings
+@include loop-spacing(".pt-", "padding-top");
+@include loop-spacing(".pr-", "padding-right");
+@include loop-spacing(".pb-", "padding-bottom");
+@include loop-spacing(".pl-", "padding-left");
+@include loop-spacing(".p-", "padding");

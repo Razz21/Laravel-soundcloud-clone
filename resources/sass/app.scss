@@ -1,0 +1,142 @@
+// @import url("https://fonts.googleapis.com/css?family=Nunito:200,600");
+
+@import "variables";
+@import "mixins";
+@import "~bulma/bulma.sass";
+@import "globals";
+
+html,
+body,
+#app {
+  height: 100%;
+  width: 100%;
+  min-width: $desktop;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  box-sizing: border-box;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+.vue-tooltip__info {
+  font-size: 0.7rem !important;
+  opacity: 0.9 !important;
+}
+
+.inner-container {
+  width: #{$desktop - $gap};
+  margin: 0 auto;
+  position: relative;
+
+  @media screen and (max-width: $desktop) {
+    width: #{$desktop - (2 * $gap)};
+  }
+}
+
+// transitions
+.infinite-list {
+  &-enter-active,
+  &-leave-active,
+  &-move {
+    transition: 500ms ease;
+    transition-property: opacity, transform;
+  }
+
+  &-leave-active {
+    position: absolute;
+  }
+
+  &-enter,
+  &-leave-to {
+    opacity: 0;
+    transform-origin: center top;
+    transform: translateY(-10px);
+  }
+}
+
+/* ==========  loader========== */
+.loader-wrapper {
+  // position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: #fff4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+
+  .loader {
+    position: relative;
+    width: 20%;
+    max-width: 80px;
+
+    &:after {
+      content: "";
+      display: block;
+      padding-bottom: 100%;
+    }
+
+    .is-loading {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+.error-wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background: #fff4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  color: red;
+  text-align: center;
+  font-weight: 400;
+
+  h3 {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+  }
+
+  i {
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    font-size: 80px;
+  }
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}

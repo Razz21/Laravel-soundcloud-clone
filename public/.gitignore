@@ -1,0 +1,5 @@
+*
+!.gitignore
+!favicon.*
+!index.php
+!robots.txt
