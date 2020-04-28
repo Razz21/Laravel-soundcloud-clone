@@ -1,5 +1,8 @@
 *
+!js/
+!css/
 !.gitignore
 !favicon.*
 !index.php
 !robots.txt
+
