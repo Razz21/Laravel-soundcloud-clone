@@ -24,24 +24,6 @@
             </p>
           </div>
           <Comments :track="track" />
-          <!-- <h2 class="subtitle is-5 is-capitalize mt-8">
-            Comments
-          </h2>
-          <hr />
-
-          <CommentForm :placeholder="`What do you think of ${track.title}?`" />
-          <infinite-list
-            class="mt-8"
-            :url="`/api/tracks/${$route.params.track}/comments`"
-          >
-            <template v-slot="{ items: { items: comments } }">
-              <comment-item
-                v-for="comment in comments"
-                :key="comment.id"
-                :comment="comment"
-              ></comment-item>
-            </template>
-          </infinite-list> -->
         </template>
       </content-layout>
     </div>
@@ -51,7 +33,6 @@
 <script>
 import AudioPlayer from "@/components/AudioPlayer";
 import ContentLayout from "@/layouts/ContentLayout";
-import VImg from "@/components/UI/General/VImg";
 import CommentItem from "@/components/Comments/CommentItem";
 import CommentForm from "@/components/Comments/CommentForm";
 import api from "@/api";
@@ -62,23 +43,22 @@ export default {
   components: {
     AudioPlayer,
     ContentLayout,
-    VImg,
     CommentItem,
     CommentForm,
     InfiniteList,
     Comments
   },
   extends: LazyLoadComponent(async (to, from, next, callback) => {
-    const userId = to.params.user;
-    const trackId = to.params.track;
+    const { user, track } = to.params;
+
     try {
-      const res = await api.getUserTrack(userId, trackId);
+      const res = await api.getUserTrack(user, track);
       callback(function() {
         this.track = res;
       });
       console.log(res);
     } catch (err) {
-      // console.log("err.response", err);
+      console.log("err.response", err.response);
       next({ name: "404" });
     }
   }),

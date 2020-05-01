@@ -4,7 +4,7 @@
       class="hero is-primary absolute top-0 left-0 full-width"
       style="height: 200px;z-index:-1"
     ></div>
-    <div class="is-relative inner-container" style="padding-top:70px">
+    <div class="is-relative inner-container" style="padding-top:85px">
       <div class="columns is-flex" v-if="profile">
         <div class="column is-narrow" style="flex: none;">
           <figure class="image is-200x200 upload-image shadow-md">
@@ -22,16 +22,21 @@
             <img :src="profile.avatar" />
           </figure>
         </div>
-        <div class="column" style="margin-top: auto; padding-bottom: 2rem;">
+        <div class="column pb-8" style="margin-top: auto; ">
           <div class="profile-navigation">
-            <h1 class="title" style="margin-bottom: 0;">
+            <h1 class="title mb-0 select-none">
               {{ profile.screen_name }}
             </h1>
-            <div class="buttons is-right are-small">
-              <div class="button">Edit profile</div>
-              <div class="button is-info" v-if="$auth.can('follow', profile)">
-                Follow
-              </div>
+            <div class="buttons is-right ">
+              <button class="button" v-if="$auth.can('edit.profile', profile)">
+                Edit profile
+              </button>
+
+              <FollowButton
+                v-if="$auth.can('follow', profile)"
+                :isFollowed="profile.is_subscribed"
+                @click="FollowProfile"
+              />
 
               <div class="dropdown is-right" :class="{ 'is-active': dropdown }">
                 <div class="dropdown-trigger">
@@ -64,24 +69,64 @@
               </div>
             </div>
           </div>
-          <h2 class="subtitle" v-if="profile.subscribers">
+          <h2 class="subtitle select-none">
             {{ profile.subscribers.meta.total }} Followers
           </h2>
         </div>
       </div>
       <div class="tabs">
         <ul>
-          <li class="is-active"><a>Tracks</a></li>
-          <li><a>History</a></li>
-          <li><a>...</a></li>
+          <router-link
+            v-for="link in links"
+            :key="link.text"
+            :to="link.path"
+            v-slot="{ href, navigate, isExactActive }"
+          >
+            <li :class="{ 'is-active': isExactActive }">
+              <a :href="href" @click="navigate">
+                {{ link.text }}
+              </a>
+            </li>
+          </router-link>
         </ul>
       </div>
     </div>
     <div class="inner-container pt-8">
       <content-layout>
-        <router-view></router-view>
+        <keep-alive>
+          <router-view :key="$route.path"></router-view>
+        </keep-alive>
         <template #side>
-          <UserList :users="profile.subscribers" v-if="profile.subscribers" />
+          <side-content v-if="location">
+            <template #title>Location</template>
+            <div class="is-flex">
+              <VIcon icon="fas fa-map-marker-alt" />
+              <div class="subtitle ml-4">{{ location }}</div>
+            </div>
+          </side-content>
+          <side-content v-if="profile.profile.description">
+            <template #title>Description</template>
+
+            <more-content height="200px">
+              <div class="is-size-7" style="white-space:pre-line">
+                {{ profile.profile.description }}
+              </div>
+            </more-content>
+          </side-content>
+          <side-content
+            :to="{ name: 'profile.following', params: { user: profile.url } }"
+          >
+            <template #title>Followers</template>
+            <template #right>
+              {{ profile.subscribers.meta.total }}
+            </template>
+            <UserItem
+              v-for="user in profile.subscribers.data"
+              :key="user.id"
+              :user="user"
+              @follow="followUser(user.id)"
+            />
+          </side-content>
         </template>
       </content-layout>
     </div>
@@ -92,19 +137,59 @@
 import UserList from "@/components/Subscriptions/UserList";
 import ContentLayout from "@/layouts/ContentLayout";
 import LazyLoadComponent from "@/components/LazyLoadComponent";
+import UserItem from "@/components/Subscriptions/UserItem";
+import SideContent from "@/components/Subscriptions/SideContent";
+
+import FollowButton from "@/components/Subscriptions/FollowButton";
+
+import { mergeDeep } from "@/helpers/utils";
 import api from "@/api";
+import followMixin from "@/mixins/followMixin";
 export default {
-  components: { UserList, ContentLayout },
+  mixins: [followMixin],
+  components: {
+    UserList,
+    ContentLayout,
+    UserItem,
+    SideContent,
+    FollowButton
+  },
   data() {
     return {
       profile: null,
       dropdown: false,
       links: [
-        { name: "history", text: "History" },
-        { name: "favorities", text: "Favorities" },
-        { name: "tracks", text: "Tracks" }
+        {
+          text: "Tracks",
+          path: {
+            name: "profile.tracks"
+          }
+        },
+        {
+          text: "History",
+          path: {
+            name: "profile.history"
+          }
+        },
+        {
+          text: "Favourite",
+          path: {
+            name: "profile.favourite"
+          }
+        },
+        { text: "...", path: "/" }
       ]
     };
+  },
+  computed: {
+    location() {
+      return [this.profile.profile.city, this.profile.profile.country].join(
+        ", "
+      );
+    }
+  },
+  mounted() {
+    // console.log("MOUNTED", this.$route);
   },
 
   extends: LazyLoadComponent(async (to, from, next, callback) => {
@@ -113,18 +198,34 @@ export default {
       callback(function() {
         this.profile = res;
       });
-      console.log("Profile Page", res);
+      // console.log("Profile Page", res);
     } catch (err) {
       console.log("err", err.response);
       next({ name: "404" });
     }
   }),
   methods: {
-    setProfile(data) {
-      this.profile = data;
+    async followUser(id) {
+      try {
+        const newData = await this._followUser(
+          this.profile.subscribers.data,
+          id
+        );
+
+        this.profile.subscribers.data = [...newData];
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async FollowProfile() {
+      try {
+        await this._followUser(this.profile, this.profile.id);
+        // mergeDeep(this.profile, data);
+      } catch (err) {
+        console.log(err);
+      }
     }
-  },
-  created() {}
+  }
 };
 </script>
 

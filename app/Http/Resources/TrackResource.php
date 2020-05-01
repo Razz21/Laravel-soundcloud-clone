@@ -8,6 +8,11 @@ class TrackResource extends JsonResource
 {
     use DynamicFieldsTrait;
 
+    protected static function getCollectionClass()
+    {
+        return 'App\Http\Resources\TrackResourceCollection';
+    }
+
     /**
      * Return the resource array.
      *
@@ -35,7 +40,7 @@ class TrackResource extends JsonResource
             'likes' => [
                 "total" => $this->likes()->count(),
             ],
-            "plays" => rand(0, 100) //TODO plays count
+            "plays" => $this->listeners->count()
         ];
     }
 }

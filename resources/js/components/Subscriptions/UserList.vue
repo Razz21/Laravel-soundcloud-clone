@@ -1,33 +1,25 @@
 <template>
-  <div class="user-list">
-    <div class="is-flex justify-space-between align-flex-end">
-      <div class="title is-5">
-        Followers
-      </div>
-      <button class="button is-small">
-        <span>
-          {{ users.meta.total }}
-        </span>
-        <span class="icon is-small">
-          <i class="fas fa-angle-right"></i>
-        </span>
-      </button>
-    </div>
-    <hr />
+  <side-content>
+    <template #title>Followers</template>
+    <template #right>
+      {{ users.meta.total }}
+    </template>
     <UserItem
       v-for="user in users.data"
       :key="user.id"
       :user="user"
       @follow="followUser"
     />
-  </div>
+  </side-content>
 </template>
 
 <script>
 // TODO handle follow button
 import UserItem from "./UserItem";
+import SideContent from "./SideContent";
+import api from "@/api";
 export default {
-  components: { UserItem },
+  components: { UserItem, SideContent },
   props: {
     users: {
       type: Object,
@@ -35,8 +27,18 @@ export default {
     }
   },
   methods: {
-    followUser(id) {
-      return;
+    async followUser(id) {
+      try {
+        const res = await this._auth(() => api.subscribe({ user_id: id }));
+        const data = this.users.data.map(u => {
+          if (u.id === res.id) {
+            return res;
+          }
+          return u;
+        });
+
+        this.$emit("update:users", { ...this.users, data });
+      } catch (err) {}
     }
   }
 };

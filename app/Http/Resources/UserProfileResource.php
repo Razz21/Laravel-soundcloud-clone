@@ -26,13 +26,12 @@ class UserProfileResource extends JsonResource
             'url' => $this->url,
             'avatar' => $this->avatar,
             'profile' => new ProfileResource($this->profile),
-            'subscribed' => new SubscriptionsSampleCollection($this->subscribed),
-            'subscribers' => new SubscriptionsSampleCollection($this->subscribers),
+            'subscribed' => new SubscriptionSampleCollection($this->subscribed),
+            'subscribers' => new SubscriptionSampleCollection($this->subscribers),
             // 'subscribers2' => (new SubscriptionsCollection($subscribers))->response()->getData(true),
             'tracks' => [
                 "total" => (int) $this->tracks()->count(),
             ],
-        ]
-        ;
+        ];
     }
 }

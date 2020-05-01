@@ -7,16 +7,32 @@
     </figure>
     <div class="media-content">
       <div class="user-item__content">
-        <strong class="title is-7 truncate">{{ user.screen_name }}</strong>
+        <router-link
+          :to="{ name: 'profiles.show', params: { user: user.url } }"
+          v-slot="{ href, navigate }"
+        >
+          <a class="is-link" :href="href" @click="navigate">
+            <strong class="is-size-7 has-text-weight-semibold truncate">
+              {{ user.screen_name }}
+            </strong>
+          </a>
+        </router-link>
         <div class="is-size-7 has-text-link">
-          {{ user.subscribers.total }} Subscribers
+          {{ user.subscribers.meta.total }}{{ "&nbsp;" }}
+          {{ "Follower" | pluralize(user.subscribers.meta.total) }}
         </div>
-        <!-- <div class="is-size-7 truncate user-location">
-          {{ [user.profile.city, user.profile.country].join(", ") }}
-        </div> -->
+        <div
+          class="is-size-7 truncate user-location has-text-grey"
+          style="min-width:0"
+          v-if="location"
+          :title="location"
+        >
+          {{ location }}
+        </div>
       </div>
       <div class="actions">
         <FollowButton
+          v-if="$auth.can('follow', user)"
           class="is-small"
           :isFollowed="user.is_subscribed"
           @click="$emit('follow', user.id)"
@@ -38,7 +54,7 @@ export default {
   },
   computed: {
     location() {
-      return;
+      return [this.user.profile.city, this.user.profile.country].join(", ");
     }
   }
 };
@@ -46,7 +62,8 @@ export default {
 
 <style lang="scss">
 .user-item {
-  padding: 0.5rem !important;
+  align-items: center !important;
+  padding: 0.25rem !important;
   & + .user-item {
     margin-top: 0;
   }
@@ -63,7 +80,7 @@ export default {
   .media-content {
     flex: 1;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     min-width: 0;
     > .user-item__content {

@@ -4,7 +4,7 @@ export default {
     ...mapGetters(["paused", "duration", "currentTrack", "_audio"]),
 
     isPlaying() {
-      return this.isCurrentTrack && !getters.get("paused");
+      return this.isCurrentTrack && !this.paused;
     },
     currentTime() {
       return getters.currentTime();
@@ -27,7 +27,7 @@ export default {
       if (this.isCurrentTrack) {
         this.seekPosition(val);
       } else {
-        this.changeTrack(this.track.id);
+        this.changeTrack(this.track);
       }
     },
     togglePlay() {
@@ -38,7 +38,7 @@ export default {
           this.pause();
         }
       } else {
-        this.changeTrack(this.track.id);
+        this.changeTrack(this.track);
       }
     }
   }

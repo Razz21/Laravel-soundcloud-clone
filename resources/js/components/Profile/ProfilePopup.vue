@@ -42,7 +42,7 @@
 </template>
 
 <script>
-// todo check if popup is preloaded on mounted; should load only on demand and only for requested element, not globally for 100s elements in list
+// todo async popup; load only on demand
 const Popup = () => import("@/components/Popup");
 export default {
   components: { Popup },

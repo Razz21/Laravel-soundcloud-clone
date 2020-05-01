@@ -5,7 +5,7 @@
         <v-img
           :src="track.cover"
           class="is-152x152"
-          fallback="has-background-grey-light"
+          fallback="track-img-fallback"
         ></v-img>
       </div>
       <div class="column track__content">
@@ -48,6 +48,7 @@
               @click="like"
               :disabled="$auth.cannot('like', track)"
             />
+            <v-button icon="fas fa-plus" @click="addToPlaylist">Add</v-button>
             <v-dropdown>
               <template v-slot:trigger="{ trigger }">
                 <v-button
@@ -91,12 +92,8 @@
 import Waveform from "./Waveform";
 import TrackTitle from "./TrackTitle";
 import PlayButton from "./PlayButton";
-import VIcon from "@/components/UI/General/VIcon";
-import VDropdown from "@/components/UI/General/VDropdown";
-import VButton from "@/components/UI/General/VButton";
-import VImg from "@/components/UI/General/VImg";
 import LikeButton from "@/components/Subscriptions/LikeButton";
-import { getters, mutations } from "@/store/player";
+import { getters, mutations, mapActions, mapGetters } from "@/store/player";
 import api from "@/api";
 import TrackMixin from "@/mixins/TrackMixin";
 export default {
@@ -105,10 +102,6 @@ export default {
     Waveform,
     TrackTitle,
     PlayButton,
-    VIcon,
-    VDropdown,
-    VButton,
-    VImg,
     LikeButton
   },
   props: ["track", "isCurrentTrack"],
@@ -118,8 +111,14 @@ export default {
     };
   },
 
-  computed: {},
+  computed: {
+    ...mapGetters(["queue"])
+  },
   methods: {
+    ...mapActions(["addToQueue"]),
+    addToPlaylist() {
+      this.addToQueue(this.track);
+    },
     async like() {
       try {
         const data = await this._auth(() => api.likeTrack(this.track.id));

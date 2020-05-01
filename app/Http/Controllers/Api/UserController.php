@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SubscriptionResource;
 use App\Http\Resources\UserProfileResource;
 use App\Http\Resources\UserResource;
 use App\User;
@@ -22,16 +23,6 @@ class UserController extends Controller
     public function me(Request $request)
     {
         return new UserResource($request->user());
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
     }
 
     /**
@@ -75,4 +66,14 @@ class UserController extends Controller
         return response('Your account has beed deleted successfully!', 204);
     }
 
+    /**
+     * Return the specified resource from storage.
+     *
+     * @param  \App\User  $user
+     * @return \Illuminate\Http\Response
+     */
+    public function subscribers(User $user)
+    {
+        return SubscriptionResource::collection($user->subscribers()->paginate(10));
+    }
 }

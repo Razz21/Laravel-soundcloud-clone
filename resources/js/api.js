@@ -1,8 +1,4 @@
 import axios from "@/plugins/axios";
-function getFunctionCallerName() {
-  // gets the text between whitespace for second part of stacktrace
-  return new Error().stack.match(/at (\S+)/g)[1].slice(3);
-}
 
 const execute = (method, url, data, config) => {
   return axios({
@@ -22,49 +18,68 @@ const execute = (method, url, data, config) => {
 };
 
 // TODO apply auth middleware(s)
-// TODO add throttle/debounce actions
+// TODO add throttle/debounce to actions
 
 export default {
   // tracks
   uploadFile(data, config) {
-    return execute("POST", "/api/tracks", data, config);
+    return execute("POST", "/tracks", data, config);
   },
-  getTrack(id) {
-    return execute("GET", `/api/tracks/${id}`);
+  getTrack(slug) {
+    return execute("GET", `/tracks/${slug}`);
   },
-  likeTrack(id) {
-    return execute("POST", `/api/tracks/${id}/likes`);
+  likeTrack(slug) {
+    return execute("POST", `/tracks/${slug}/likes`);
   },
 
   getUserTrack(user, track) {
-    return execute("GET", `/api/users/${user}/tracks/${track}`);
+    return execute("GET", `/users/${user}/tracks/${track}`);
   },
 
   // profiles
-  getProfile(url) {
-    console.log("getProfile", url);
-    return execute("GET", `/api/users/${url}`);
+  getProfile(userUrl) {
+    return execute("GET", `/users/${userUrl}`);
   },
   updateProfile(data) {
-    return execute("PUT", `/api/profile`, data);
+    return execute("PUT", `/profile`, data);
   },
   // tags
   searchTags(data) {
-    return execute("GET", `/api/tags?search=${data}`);
+    return execute("GET", `/tags?search=${data}`);
   },
   // genres
   getGenres() {
-    return execute("GET", "/api/genres");
+    return execute("GET", "/genres");
   },
   // comments
   getComments(track, config) {
-    return execute("GET", `/api/tracks/${track}/comments`, null, config);
+    return execute("GET", `/tracks/${track}/comments`, null, config);
   },
-  createComment(track, data) {
-    return execute("POST", `/api/tracks/${track}/comments`, data);
+  createComment(trackSlug, data) {
+    return execute("POST", `/tracks/${trackSlug}/comments`, data);
   },
 
   subscribe(data) {
-    return execute("POST", `/api/subscriptions/`, data);
+    return execute("POST", `/subscriptions/`, data);
+  },
+  // history
+  getHistory() {
+    return execute("GET", `/history`);
+  },
+  updateHistory(data) {
+    return execute("POST", `/history`, data);
+  },
+  deleteFromHistory(data) {
+    return execute("DELETE", `/history`, data);
+  },
+  getUserHistory(userId) {
+    return execute("GET", `users/${userId}/history`);
+  },
+  // player queue
+  getQueue() {
+    return execute("GET", `/queue`);
+  },
+  updateQueue(data) {
+    return execute("POST", `/queue`, data);
   }
 };

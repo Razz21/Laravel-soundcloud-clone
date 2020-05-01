@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use App\Listeners\Users\CreateUserProfile;
+use App\Listeners\Users\FlushSessionAfterLogout;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -20,7 +23,12 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
             CreateUserProfile::class,
         ],
-
+        Login::class => [
+            // SyncListeningHistory::class,
+        ],
+        Logout::class => [
+            FlushSessionAfterLogout::class,
+        ],
     ];
 
     /**

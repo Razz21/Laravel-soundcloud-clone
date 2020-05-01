@@ -41,9 +41,8 @@
 </template>
 
 <script>
-import VImg from "@/components/UI/General/VImg";
 export default {
-  components: { VImg },
+  components: {},
   inject: ["submit"],
   props: {
     placeholder: String,

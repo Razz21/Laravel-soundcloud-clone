@@ -38,11 +38,10 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('track', function ($value, $route) {
-            // \Log::info('user', ['track' => $value]);
             if ($route->hasParameter('user')) {
                 $track = $route->parameter('user')->tracks()->whereSlug($value);
             } else {
-                $track = Track::where('id', $value); //TODO handle id/slug
+                $track = Track::where('id', $value);
             }
             return $track->firstOrFail();
         });

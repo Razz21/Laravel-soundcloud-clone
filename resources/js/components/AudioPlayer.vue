@@ -52,15 +52,13 @@
 <script>
 import Waveform from "./Audio/Waveform";
 import PlayButton from "./Audio/PlayButton";
-import VButton from "@/components/UI/General/VButton";
 import TrackTitle from "./Audio/TrackTitle";
 import rPlayer from "@/helpers/rPlayer";
 import { getters, mutations, mapActions, mapGetters } from "@/store/player";
-import VImg from "@/components/UI/General/VImg";
 import TrackMixin from "@/mixins/TrackMixin";
 export default {
   mixins: [TrackMixin],
-  components: { Waveform, VImg, TrackTitle, PlayButton, VButton },
+  components: { Waveform, TrackTitle, PlayButton },
   props: {
     track: {
       type: Object,

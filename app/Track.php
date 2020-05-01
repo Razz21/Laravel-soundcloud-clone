@@ -46,6 +46,10 @@ class Track extends Model implements HasMedia
     {
         return $this->hasMany(Comment::class)->whereNull('parent_id');
     }
+    public function listeners()
+    {
+        return $this->belongsToMany(User::class, 'histories')->withTimestamps()->latest();
+    }
 
     public function delete()
     {
@@ -78,6 +82,10 @@ class Track extends Model implements HasMedia
     public function getCoverAttribute()
     {
         return $this->cover();
+    }
+    public function getListenersAttribute()
+    {
+        return $this->listeners();
     }
 
     public function registerMediaCollections(): void

@@ -113,7 +113,7 @@ class TrackController extends Controller
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, Track $track)
     {
         //
     }
@@ -124,7 +124,7 @@ class TrackController extends Controller
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user)
+    public function destroy(Track $track)
     {
         //
     }

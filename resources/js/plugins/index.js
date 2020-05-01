@@ -18,16 +18,23 @@ Vue.use(VueTooltip, {
 });
 
 register("follow", (user, target) => {
-  return user.id !== target.id;
+  // true only, if target is not current user, or is anonymuous to not break layout
+  if (user) {
+    return user.id !== target.id;
+  }
+  return true;
 });
 register("like", (user, target) => {
-  return user.id !== target.user_id;
-});
-register("edit.profile", (user, target) => {
-  return user.id === target.id;
+  // return true only for authenticated user, if is not owner
+  return user && user.id !== target.user_id;
 });
 
-Vue.use(VueAuth, { userPath: "/api/user", axios });
+register("edit.profile", (user, target) => {
+  // return true only for authenticated user, if is owner
+  return user && user.id === target.id;
+});
+
+Vue.use(VueAuth, { userPath: "/user", axios });
 
 Vue.use(InfiniteLoading);
 

@@ -1,5 +1,5 @@
 <script>
-import VButton from "@/components/UI/General/VButton";
+import VButton from "@/components/Global/VButton";
 export default {
   functional: true,
   extends: VButton,

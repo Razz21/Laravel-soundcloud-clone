@@ -37,6 +37,35 @@ a:hover {
   }
 }
 
+.track-img-fallback {
+  background-color: #dedede;
+  &::before {
+    color: #fefefe;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 5rem;
+    font-weight: 400;
+    content: "\266B";
+    // animation: dancing 1.2s both infinite;
+  }
+}
+
+@keyframes dancing {
+  0%,
+  100% {
+    transform: scale(0.9);
+    color: rgb(161, 36, 161);
+  }
+  50% {
+    transform: scale(1.1);
+    color: rgb(0, 110, 255);
+  }
+}
+
 // transitions
 .infinite-list {
   &-enter-active,

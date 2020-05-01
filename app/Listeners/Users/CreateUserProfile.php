@@ -22,9 +22,6 @@ class CreateUserProfile
      */
     public function handle($event)
     {
-        // $event->user->profile()->create([
-        //     'name' => $event->user->username,
-        //     'url' => Str::slug($event->user->username),
-        // ]);
+        $event->user->profile()->create();
     }
 }

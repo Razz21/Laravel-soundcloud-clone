@@ -6,13 +6,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProfileResource extends JsonResource
 {
+    use DynamicFieldsTrait;
     /**
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request)
+    public function toArrayFilter($request)
     {
         return [
             "description" => $this->description,

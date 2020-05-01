@@ -43,7 +43,6 @@ class ConvertForStreaming implements ShouldQueue
      */
     public function handle()
     {
-        \Log::debug('ConverForStreaming START');
         $this->setProgressMax(100);
 
         event(new FileProcessingEvent($this->jobStatus, $this->track));
@@ -75,8 +74,6 @@ class ConvertForStreaming implements ShouldQueue
 
             $waveformData = WavToJson::convert($filepath, $this->track->id);
 
-            // \Log::info('wavetojson', compact('waveformData'));
-
             $this->track->update([
                 'audio_length' => $audio_length,
                 'wave' => $waveformData,
@@ -89,9 +86,6 @@ class ConvertForStreaming implements ShouldQueue
              */
             $this->setProgressNow(100);
             $this->update(['status' => 'finished']);
-
-            // $status = $this->jobStatus;
-            // \Log::info('jobStatus', compact('status'));
 
             event(new FileProcessingEvent($this->jobStatus, $this->track));
         } catch (\Exception $e) {

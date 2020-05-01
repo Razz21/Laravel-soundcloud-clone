@@ -21,3 +21,7 @@ Vue.filter("elapsedTime", function(val) {
   val = ~~val; //Math.floor
   return (val - (val %= 60)) / 60 + (9 < val ? ":" : ":0") + val;
 });
+
+Vue.filter("pluralize", (word, amount) =>
+  amount > 1 || amount == 0 ? `${word}s` : word
+);

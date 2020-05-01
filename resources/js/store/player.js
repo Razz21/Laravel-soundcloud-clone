@@ -3,28 +3,38 @@ import Hls from "hls.js";
 import api from "@/api";
 import { debounce } from "@/helpers/utils";
 
+import Queue from "@/helpers/Queue";
+
+/* constants */
 const CURRENT_TRACK = "current-track";
+
+/* helpers */
 const setVolume = function(value) {
   localStorage.setItem("r-player-volume", value);
 };
 const debouncedSetLocalStorageVolume = debounce(setVolume, 1000);
 
+/* config */
+const queue = new Queue();
+const audio = new Audio();
+
+/* state */
 const state = Vue.observable({
-  currentTrack: localStorage.getItem(CURRENT_TRACK), //id to fetch data by player
+  currentTrack: localStorage.getItem(CURRENT_TRACK), // identify track in app
   audioPosition: 0,
-  _audio: new Audio(),
+  _audio: audio,
   _hls: null,
   autoPlay: false,
-  duration: 0,
-  loaded: false,
-  looped: false,
+  duration: 0, // current track duration
+  loaded: false, // current track loaded
   muted: false,
   paused: true,
   playing: false,
-  track: null,
+
   volume: 70,
-  console,
-  mutedVal: 70
+  mutedVal: 70,
+  queue: queue,
+  currentQueueUid: null // identify track in queue list with possible duplicates
 });
 
 export const getters = {
@@ -35,7 +45,11 @@ export const getters = {
     }
     return state[prop];
   },
-  currentTime: () => state._audio.currentTime
+  currentTime: () => state._audio.currentTime,
+  currentIndex: () =>
+    state.queue.findIndex(({ uid }) => uid === state.currentQueueUid),
+  track: () => state.queue.getCurrentEl(),
+  looped: () => state.queue.looped
 };
 
 export const mutations = {
@@ -60,10 +74,12 @@ export const mutations = {
   },
   setCurrentTime: val => {
     state._audio.currentTime = parseInt(val);
-  }
+  },
+  setLooped: val => (state.queue.looped = Boolean(val))
 };
 
 export const actions = {
+  // player
   load(src) {
     return new Promise(resolve => {
       if (state.playing) actions.stop();
@@ -75,7 +91,6 @@ export const actions = {
         state._hls.on(Hls.Events.LEVEL_LOADED, (event, data) => {
           mutations.set("duration", data.details.totalduration);
           // state._hls.stopLoad();
-          mutations.set("loaded", true);
         });
         state._hls.on(Hls.Events.MANIFEST_PARSED, () => {
           resolve();
@@ -117,7 +132,6 @@ export const actions = {
     state._audio.pause();
     state._audio.currentTime = 0;
     state._audio.src = "";
-    // this.currentTime = 0;
     if (state._hls) {
       state._hls.destroy();
       state._hls = null;
@@ -127,17 +141,102 @@ export const actions = {
     mutations.setAudioPosition(val);
     state._audio.currentTime = parseInt(state.duration * val);
   },
-  async changeTrack(id) {
-    await actions.fetchTrack(id);
-    actions.play();
+  async changeTrack(track) {
+    // add to next position and play
+    queue.addNext(track);
+    await actions.playNext();
   },
+
   async fetchTrack(id) {
     mutations.setCurrentTrack(id);
     const track = await api.getTrack(id);
     mutations.set("track", track);
     await actions.load(track.url);
+  },
+
+  // player queue
+  async getQueue() {
+    const response = await api.getQueue();
+    actions._updateQueueFromResponse(response);
+    mutations.set("loaded", true);
+  },
+
+  async syncQueueWithDB() {
+    const data = queue.getState();
+    const response = await api.updateQueue(data);
+    // console.log(response);
+  },
+
+  addToQueue(track) {
+    queue.add(track);
+    console.log(queue);
+  },
+
+  removeFromQueue(idx) {
+    queue.remove(idx);
+  },
+
+  async playSelected(idx) {
+    const next = queue.changeTo(idx);
+    await actions.loadTrack(next);
+  },
+
+  async playNext() {
+    const next = queue.next();
+    console.log("next", next, queue);
+    await actions.loadTrack(next);
+  },
+
+  async playPrev() {
+    const prev = queue.prev();
+    console.log("prev", prev, queue);
+    await actions.loadTrack(prev);
+  },
+
+  async loadTrack(next) {
+    if (!next) {
+      return;
+
+      // actions.stop();
+    } else {
+      mutations.setCurrentTrack(next.id);
+      mutations.set("currentQueueUid", next.uid);
+      await actions.load(next.url);
+      actions.play();
+      actions.updateQueueOrder();
+    }
+  },
+  updateQueueOrder() {
+    const newIdx = queue.elements.findIndex(
+      ({ uid }) => uid === state.currentQueueUid
+    );
+    if (newIdx > -1) {
+      queue.current = newIdx;
+    }
+  },
+
+  _updateQueueFromResponse(response) {
+    // response return tracks collection with active item array index
+    if (response.hasOwnProperty("tracks")) {
+      queue.addArray(response.tracks);
+      queue.currentIndex = parseInt(response.currentIndex) || 0;
+      // let currentIndex = parseInt(response.currentIndex) || 0;
+      // currentIndex = Math.min(Math.max(currentIndex, 0), queueItems.length - 1);
+      const current = queue.getCurrentEl();
+      const currentQueueUid = current && current.uid;
+      console.log("_updateQueueFromResponse response", response);
+      console.log("_updateQueueFromResponse queue", queue);
+      console.log("_updateQueueFromResponse current", current, currentQueueUid);
+      mutations.set("currentQueueUid", currentQueueUid);
+    }
   }
 };
+
+const debounceSyncQueue = debounce(actions.syncQueueWithDB, 5000);
+queue.on("update", () => {
+  actions.updateQueueOrder();
+  // debounceSyncQueue();
+});
 
 export default {
   getters,

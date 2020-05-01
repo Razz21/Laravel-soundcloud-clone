@@ -3,7 +3,7 @@
     <div class="column is-8">
       <slot></slot>
     </div>
-    <div class="column">
+    <div class="column is-4">
       <slot name="side"></slot>
     </div>
   </div>
@@ -12,5 +12,3 @@
 <script>
 export default {};
 </script>
-
-<style></style>

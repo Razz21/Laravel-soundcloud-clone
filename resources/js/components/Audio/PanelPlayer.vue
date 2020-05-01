@@ -1,12 +1,16 @@
 <template>
   <div
     class="audio-panel has-background-dark has-text-white-bis"
-    :class="{ show: loaded }"
+    :class="{ show: true }"
   >
     <div class="container is-fullhd ">
       <div class="container is-fluid is-flex pl-3 pr-3 pt-2 pb-2 align-center">
         <div class="buttons">
-          <VButton icon="fas fa-step-backward" class="is-dark" />
+          <VButton
+            icon="fas fa-step-backward"
+            class="is-dark"
+            @click="playPrev"
+          />
           <VButton
             icon="fas fa-play"
             v-if="paused"
@@ -14,7 +18,27 @@
             @click="play"
           />
           <VButton icon="fas fa-pause" v-else class="is-dark" @click="pause" />
-          <VButton icon="fas fa-step-forward" class="is-dark" />
+          <VButton
+            icon="fas fa-step-forward"
+            class="is-dark"
+            @click="playNext"
+          />
+
+          <v-button
+            title="repeat queue"
+            class="is-dark"
+            :style="{ color: looped ? '#ff6b97' : '#666' }"
+            @click="looped = !looped"
+          >
+            <span class="icon is-flex">
+              <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z"
+                />
+              </svg>
+            </span>
+          </v-button>
         </div>
         <div class="time">
           {{ _audio.currentTime | elapsedTime }}
@@ -24,6 +48,8 @@
           -{{ _audio.currentTime | remainingTime(duration) }}
         </div>
         <Volume :volume.sync="volume" @mute="mute" />
+        <TrackData :track="track" v-if="track" />
+        <Queue />
         <!-- {{ timelineTime }} -->
       </div>
     </div>
@@ -31,7 +57,6 @@
 </template>
 
 <script>
-import VButton from "@/components/UI/General/VButton";
 import PlayButton from "./PlayButton";
 import {
   mapActions,
@@ -43,15 +68,17 @@ import {
 } from "@/store/player";
 import Volume from "./Volume";
 import Timeline from "./Timeline";
+import TrackData from "./TrackData";
+import Queue from "@/components/Queue/Queue";
 import Hls from "hls.js";
 import { debounce } from "@/helpers/utils";
+
 // change track
 // update track position
 export default {
-  components: { VButton, PlayButton, Volume, Timeline },
+  components: { PlayButton, Volume, Timeline, Queue, TrackData },
   data() {
     return {
-      looped: false,
       console,
       mutedVal: this.volume
     };
@@ -66,8 +93,24 @@ export default {
       "volume",
       "muted"
     ]),
-    ...mapGetters(["currentTrack", "_audio", "loaded", "track"]),
-
+    ...mapGetters([
+      "currentTrack",
+      "_audio",
+      "loaded",
+      "queue",
+      "currentIndex"
+    ]),
+    track() {
+      return getters.track();
+    },
+    looped: {
+      get() {
+        return getters.looped();
+      },
+      set(value) {
+        mutations.setLooped(value);
+      }
+    },
     volume: {
       get() {
         return getters.get("volume");
@@ -94,7 +137,15 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["load", "seekPosition", "pause", "play", "fetchTrack"]),
+    ...mapActions([
+      "load",
+      "seekPosition",
+      "pause",
+      "play",
+      "fetchTrack",
+      "playNext",
+      "playPrev"
+    ]),
     mute() {
       this.muted = !this.muted;
       if (this.muted) {
@@ -118,6 +169,7 @@ export default {
     _handlePlay(e) {
       requestAnimationFrame(this._progressAnimation);
     },
+
     togglePlay() {
       if (this.paused) {
         this.play();
@@ -129,7 +181,8 @@ export default {
     init() {
       this._audio.addEventListener("loadeddata", this._handleLoaded);
       this._audio.addEventListener("play", this._handlePlay);
-      ["abort", "ended", "pause"].forEach(event => {
+      this._audio.addEventListener("ended", this.playNext);
+      ["abort", "pause"].forEach(event => {
         this._audio.addEventListener(event, this.pause, false);
       });
     },
@@ -160,7 +213,8 @@ export default {
   beforeDestroy() {
     this._audio.removeEventListener("loadeddata", this._handleLoaded);
     this._audio.removeEventListener("play", this._handlePlay);
-    ["abort", "ended", "pause"].forEach(event => {
+    this._audio.addEventListener("ended", this.playNext);
+    ["abort", "pause"].forEach(event => {
       this._audio.removeEventListener(event, this.pause, false);
     });
     window.removeEventListener("keydown", this._handleKeyControl);
@@ -174,9 +228,9 @@ export default {
     // },
   },
   created() {
-    if (this.currentTrack) {
-      this.fetchTrack(this.currentTrack);
-    }
+    // if (this.currentTrack) {
+    //   this.fetchTrack(this.currentTrack);
+    // }
   }
 };
 </script>
@@ -215,7 +269,7 @@ export default {
       width: var(--headsize);
       height: var(--headsize);
       border-radius: 50%;
-      background-color: rgb(255, 107, 151);
+      background-color: #ff6b97;
     }
     &::before {
       content: "";
@@ -268,6 +322,7 @@ export default {
     }
   }
   .volume {
+    z-index: 10;
     overflow: visible;
     cursor: pointer;
     position: relative;

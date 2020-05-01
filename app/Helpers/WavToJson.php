@@ -71,7 +71,7 @@ class WavToJson
             $array = &$json->data;
             $path = storage_path($tempFile);
 
-            \Log::info('filename', compact('path'));
+            // \Log::info('filename', compact('path'));
 
             $filename = storage_path('app/') . $tempFile;
             // $filename = str_replace('\\', '/', $filename);
@@ -163,7 +163,6 @@ class WavToJson
         } finally {
             // delete processed wav file
             unlink($filename);
-            // Storage::delete($tempFile);
         }
         $normalized = self::normalizeData(self::filterData($json->data));
 

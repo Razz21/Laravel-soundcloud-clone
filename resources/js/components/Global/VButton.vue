@@ -14,8 +14,8 @@ export default {
     return h(
       "button",
       {
-        class: "button",
         ...data,
+        class: ["button", data.class],
         on: {
           click: clickEvent
         }

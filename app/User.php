@@ -43,6 +43,7 @@ class User extends Authenticatable implements HasMedia
     protected $with = [];
 
     protected $appends = ['thumbnail', "avatar"];
+    protected $touches = ['subscribed', 'subscribers', 'history'];
 
     /**
      * The attributes that should be cast to native types.
@@ -76,6 +77,7 @@ class User extends Authenticatable implements HasMedia
     public function subscribed()
     {
         return $this->belongsToMany(static::class, 'subscriptions', 'user_id', 'target_id')
+            ->withTimestamps()
             ->withPivot('id')
             ->latest();
     }
@@ -83,6 +85,7 @@ class User extends Authenticatable implements HasMedia
     public function subscribers()
     {
         return $this->belongsToMany(static::class, 'subscriptions', 'target_id', 'user_id')
+            ->withTimestamps()
             ->withPivot(['id'])
             ->latest();
     }
@@ -110,6 +113,11 @@ class User extends Authenticatable implements HasMedia
     public function likedTracks()
     {
         return $this->morphedByMany(Track::class, 'likeable')->whereDeletedAt(null)->latest();
+    }
+
+    public function history()
+    {
+        return $this->belongsToMany(Track::class, 'histories')->withTimestamps()->latest();
     }
 
     /* =================== media-library =================== */

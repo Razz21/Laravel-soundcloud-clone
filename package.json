@@ -36,7 +36,8 @@
     "uuid": "^7.0.2",
     "vee-validate": "^3.2.5",
     "vue-directive-tooltip": "^1.6.3",
-    "vue-infinite-loading": "^2.4.5"
+    "vue-infinite-loading": "^2.4.5",
+    "vuedraggable": "^2.23.2"
   },
   "babel": {
     "presets": [

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SubscriptionResource;
 use App\Subscription;
 use App\User;
 use Illuminate\Http\Request;
@@ -35,7 +36,7 @@ class SubscriptionController extends Controller
         $this->authorize('subscribe', [User::class, $target]);
         $request->user()->subscribed()->toggle($target->id);
 
-        return $request->user()->subscribed()->get();
+        return SubscriptionResource::make($target)->only(['id', 'is_subscribed', 'subscribers']);
     }
 
     /**
@@ -51,7 +52,7 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Return the specified resource from storage.
      *
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
@@ -60,5 +61,4 @@ class SubscriptionController extends Controller
     {
         return auth()->user()->subscribers()->get();
     }
-
 }

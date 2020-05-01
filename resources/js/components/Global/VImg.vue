@@ -3,13 +3,14 @@ export default {
   functional: true,
   props: ["src", "rounded", "fallback"],
 
-  render(h, { data, props }) {
+  render(h, { data, props, slots }) {
     const image =
       props.src &&
       h("img", {
         attrs: { src: props.src },
         class: { "is-rounded": props.rounded }
       });
+
     return h(
       "figure",
       {

@@ -50,12 +50,10 @@
 </template>
 
 <script>
-import VImg from "@/components/UI/General/VImg";
 import ProfilePopup from "@/components/Profile/ProfilePopup";
 import CommentForm from "./CommentForm";
 export default {
   components: {
-    VImg,
     ProfilePopup,
     CommentForm,
     CommentItem: () => import("./CommentItem")

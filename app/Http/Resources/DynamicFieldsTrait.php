@@ -10,7 +10,10 @@ trait DynamicFieldsTrait
      *
      * @var string
      */
-    protected static $collectionClass;
+    protected static function getCollectionClass()
+    {
+        return '';
+    }
 
     /**
      * * Store array keys to remove from resource.
@@ -33,8 +36,9 @@ trait DynamicFieldsTrait
      */
     public static function collection($resource)
     {
-        if (self::$collectionClass) {
-            return tap(new self::$collectionClass($resource), function ($collection) {
+        $collectionClass = self::getCollectionClass();
+        if ($collectionClass) {
+            return tap(new $collectionClass($resource), function ($collection) {
                 $collection->collects = __CLASS__;
             });
         } else {

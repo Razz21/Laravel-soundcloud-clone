@@ -20,7 +20,7 @@ class CommentResource extends JsonResource
             "body" => $this->body,
             "created_at" => $this->created_at,
             "track_id" => $this->track_id,
-            "user" => new UserPreviewResource($this->user),
+            "user" => UserResource::make($this->user)->hide(['email', 'created_at', "username"]),
             "replies" => self::collection($this->whenLoaded('replies')),
         ];
     }

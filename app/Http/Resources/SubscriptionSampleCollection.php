@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class SubscriptionsSampleCollection extends ResourceCollection
+class SubscriptionSampleCollection extends ResourceCollection
 {
     /**
      * @var
@@ -29,7 +29,7 @@ class SubscriptionsSampleCollection extends ResourceCollection
      *
      * @var string
      */
-    public $collects = 'App\Http\Resources\UserPreviewResource';
+    public $collects = 'App\Http\Resources\SubscriptionResource';
     /**
      * Transform the resource collection into an array.
      *

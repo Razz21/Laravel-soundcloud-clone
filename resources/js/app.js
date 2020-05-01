@@ -15,6 +15,18 @@ String.prototype.getFileName = function() {
 
 Vue.mixin(authMixin);
 
+// register all components in /Global directory
+const files = require.context("@/components/Global", true, /\.vue$/i);
+files.keys().map(key =>
+  Vue.component(
+    key
+      .split("/")
+      .pop()
+      .split(".")[0],
+    files(key).default
+  )
+);
+
 let app = new Vue({
   el: "#app",
   router,

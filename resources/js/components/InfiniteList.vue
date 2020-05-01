@@ -1,7 +1,7 @@
 <template>
   <div>
     <transition-group name="infinite-list">
-      <slot v-bind:items="{ items }"></slot>
+      <slot></slot>
     </transition-group>
     <infinite-loading @infinite="infiniteHandler"></infinite-loading>
   </div>
@@ -11,15 +11,22 @@
 import CommentItem from "@/components/Comments/CommentItem";
 export default {
   components: { CommentItem },
+  model: {
+    prop: "items",
+    event: "update"
+  },
   props: {
     url: {
       type: String,
+      required: true
+    },
+    items: {
+      type: Array,
       required: true
     }
   },
   data() {
     return {
-      items: [],
       meta: null,
       page: 1
     };
@@ -34,7 +41,8 @@ export default {
         })
         .then(({ data }) => {
           if (data.data.length) {
-            this.items.push(...data.data);
+            const newItems = this.items.concat(data.data);
+            this.$emit("update", newItems);
             this.page++;
             $state.loaded();
           } else {

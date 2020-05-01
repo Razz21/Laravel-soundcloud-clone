@@ -5,7 +5,7 @@ axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 axios.defaults.withCredentials = true;
 
 const instance = axios.create({
-  baseURL: process.env.VUE_APP_URL
+  baseURL: "/api"
 });
 
 instance.interceptors.response.use(

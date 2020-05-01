@@ -40,7 +40,7 @@ export default {
   methods: {
     infiniteHandler($state) {
       api
-        .getComments(this.track.slug, {
+        .getComments(this.track.id, {
           params: {
             page: this.page
           }

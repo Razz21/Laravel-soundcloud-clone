@@ -87,7 +87,7 @@ const properties = function(Vue, o) {
       },
       can(name, ...args) {
         checkTypes(arguments, ["string"]);
-        if (!this.isLogged) return false;
+        // if (!this.isLogged) return false;
         const callback = permissions.get(name);
         return callback(this.user, ...args);
       },
@@ -114,7 +114,6 @@ export default {
     const options = Object.assign(defaults, opts);
     const axios = options.axios;
     if (!axios || typeof axios !== "function") {
-      // todo check, if axios instance provided
       throw new Error("VueAuth require axios instance!");
     }
     Vue.prototype[options.name] = Object.freeze(properties(Vue, options));

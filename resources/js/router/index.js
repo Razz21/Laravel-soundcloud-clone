@@ -14,6 +14,8 @@ const Settings = () =>
   import(/* webpackChunkName: "settings" */ "@/pages/Settings.vue");
 const ProfileTracks = () =>
   import(/* webpackChunkName: "profile" */ "@/pages/Profile/Tracks.vue");
+const ProfileFollowing = () =>
+  import(/* webpackChunkName: "profile" */ "@/pages/Profile/Following.vue");
 import SettingsProfile from "@/pages/Settings/Profile.vue";
 
 Vue.use(Router);
@@ -59,18 +61,44 @@ const router = new Router({
           name: "profiles.show",
           redirect: { name: "profile.tracks" },
           component: Profile,
+          props: true,
+          meta: {
+            key: route => "Profile-" + route.params.user
+          },
           children: [
             {
+              alias: "", // load initially on parent route
               path: "tracks",
               name: "profile.tracks",
-              component: ProfileTracks
+              component: ProfileTracks,
+              props: { endpoint: "tracks" }
+            },
+            {
+              path: "favourite",
+              name: "profile.favourite",
+              component: ProfileTracks,
+              props: { endpoint: "favourite" }
+            },
+            {
+              path: "history",
+              name: "profile.history",
+              component: ProfileTracks,
+              props: { endpoint: "history" }
+            },
+            {
+              path: "following",
+              name: "profile.following",
+              component: ProfileFollowing
             }
           ]
         },
         {
           path: ":user/:track",
           name: "tracks.show",
-          component: FileShow
+          component: FileShow,
+          meta: {
+            key: route => "Track-" + route.params.track
+          }
         }
       ]
     },

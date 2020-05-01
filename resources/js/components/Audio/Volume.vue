@@ -20,9 +20,8 @@
 </template>
 
 <script>
-import VButton from "@/components/UI/General/VButton";
 export default {
-  components: { VButton },
+  components: {},
   props: {
     volume: Number
   },

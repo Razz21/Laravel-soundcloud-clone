@@ -147,4 +147,21 @@ export default {
     color: #3f86b6;
   }
 }
+
+.modal {
+  .modal-content {
+    animation: fade 0.3s ease;
+  }
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>
