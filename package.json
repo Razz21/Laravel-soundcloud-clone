@@ -31,7 +31,7 @@
     "dotenv": "^8.2.0",
     "hls.js": "^0.13.2",
     "laravel-echo": "^1.6.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "pusher-js": "^5.1.1",
     "uuid": "^7.0.2",
     "vee-validate": "^3.2.5",
